@@ -1,0 +1,9 @@
+langchain 
+langgraph 
+chromadb 
+openai 
+beautifulsoup4 
+requests 
+tiktoken 
+python-dotenv
+lxml
