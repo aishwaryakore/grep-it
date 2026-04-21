@@ -3,34 +3,63 @@ from bs4 import BeautifulSoup
 def clean_html(html):
     soup = BeautifulSoup(html, "html.parser")
 
+    main = soup.find(id="body-content")
+    if main:
+        soup = main
+
+    sidebar = soup.find(id="sidebar-content")
+    if sidebar:
+        sidebar.decompose()
+
+    banner = soup.find(id="banner")
+    if banner:
+        banner.decompose()
+
     for tag in soup(["nav", "footer", "aside", "script", "style", "button", "svg", "img"]):
         tag.decompose()
 
     content = []
+    seen = set()
 
-    for element in soup.find_all(["h1", "h2", "h3", "h4", "p", "pre", "code", "li", "div", "span"]):
+    for element in soup.find_all(["h1", "h2", "h3", "h4", "p", "pre", "span"]):
 
-        if element.find_parent(["p", "pre", "li"]):
+        if element.find_parent(["p", "pre"]) and element.name != "span":
             continue
 
-        text = element.get_text(separator=" ", strip=True)
-
-        if not text or len(text) < 20:
-            continue
-
-        if element.name in ["h1", "h2", "h3", "h4"]:
-            content.append(f"\n## {text}\n")
+        if element.name == "span":
+            if element.get("data-as") == "p":
+                text = element.get_text(" ", strip=True)
+            else:
+                continue
         elif element.name == "pre":
-            content.append(f"\n```\n{text}\n```\n")
-        elif element.name == "li":
-            content.append(f"- {text}")
+            code = element.get_text()
+            content.append(f"\n```python\n{code}\n```\n")
+            continue
+        else:
+            text = element.get_text(" ", strip=True)
+
+        text = text.replace("\u200b", "").strip()
+
+        if not text:
+            continue
+
+        if any(x in text for x in ["Join us", "Was this page helpful", "Edit this page"]):
+            continue
+
+        if text in seen:
+            continue
+        seen.add(text)
+
+        if element.name == "h1":
+            content.append(f"\n# {text}\n")
+        elif element.name == "h2":
+            content.append(f"\n## {text}\n")
+        elif element.name == "h3":
+            content.append(f"\n### {text}\n")
+        elif element.name == "h4":
+            content.append(f"\n#### {text}\n")
         else:
             content.append(text)
 
-    seen = []
-    for line in content:
-        if not seen or line != seen[-1]:
-            seen.append(line)
-
-    return "\n".join(seen)
+    return "\n\n".join(content)
 
