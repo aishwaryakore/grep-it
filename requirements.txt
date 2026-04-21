@@ -1,4 +1,5 @@
 langchain 
+langchain_openai
 langgraph 
 chromadb 
 openai 
@@ -7,3 +8,6 @@ requests
 tiktoken 
 python-dotenv
 lxml
+sentence-transformers 
+chromadb
+langchain-chroma
