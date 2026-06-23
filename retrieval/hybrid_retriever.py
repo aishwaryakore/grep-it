@@ -1,0 +1,42 @@
+import json
+
+from langchain_community.retrievers import BM25Retriever
+from langchain_core.documents import Document
+from langchain_classic.retrievers import EnsembleRetriever
+
+from embeddings.embedder import Embedder
+from vector_store.chroma_store import ChromaStore
+
+CHUNKS_PATH = "data/chunks/chunks.json"
+
+def load_chunk_documents():
+    with open(CHUNKS_PATH, "r") as f:
+        chunks = json.load(f)
+
+    return [
+        Document(
+            page_content=chunk["content"],
+            metadata={
+                "source": chunk["source"],
+                "section": chunk["section"],
+                "title": chunk["title"]
+            }
+        )
+        for chunk in chunks
+    ]
+
+def build_retriever(k=8):
+    # Vector retriever
+    store = ChromaStore()
+    vector_retriever = store.as_retriever(search_kwargs={"k": k})
+
+    # BM25 retriever
+    documents = load_chunk_documents()
+    bm25_retriever = BM25Retriever.from_documents(documents)
+    bm25_retriever.k = k
+
+    # Combine both
+    return EnsembleRetriever(
+        retrievers=[bm25_retriever, vector_retriever],
+        weights=[0.5, 0.5]
+    )

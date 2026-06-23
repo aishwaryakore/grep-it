@@ -1,4 +1,3 @@
-from embeddings.embedder import Embedder
 from vector_store.chroma_store import ChromaStore
 
 from langchain_openai import ChatOpenAI
@@ -7,6 +6,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 
 from retrieval.prompts import RAG_PROMPT
+from retrieval.hybrid_retriever import build_retriever
 
 from dotenv import load_dotenv
 
@@ -22,7 +22,7 @@ class RAGPipeline:
         )
 
         self.prompt = ChatPromptTemplate.from_template(RAG_PROMPT)
-        self.retriever = self.store.as_retriever(search_kwargs={"k": 5})
+        self.retriever = build_retriever(k=8)
         self.chain = self._build_chain()
 
     def _format_context(self, docs):
