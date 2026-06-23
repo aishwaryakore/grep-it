@@ -7,7 +7,7 @@ def load_page(url):
             "url" : url,
             "html" : resonse.text
         }
-    except:
+    except Exception as e:
         print(f"Error loading {url}: {e}")
         return None
     

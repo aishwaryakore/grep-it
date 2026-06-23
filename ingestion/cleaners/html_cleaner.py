@@ -21,7 +21,7 @@ def clean_html(html):
     content = []
     seen = set()
 
-    for element in soup.find_all(["h1", "h2", "h3", "h4", "p", "pre", "span"]):
+    for element in soup.find_all(["h1", "h2", "h3", "h4", "p", "pre", "span", "ul"]):
 
         if element.find_parent(["p", "pre"]) and element.name != "span":
             continue
@@ -34,6 +34,13 @@ def clean_html(html):
         elif element.name == "pre":
             code = element.get_text()
             content.append(f"\n```python\n{code}\n```\n")
+            continue
+        elif element.name == "ul":
+            items = element.find_all("li", recursive=False)
+            for item in items:
+                text = item.get_text(" ", strip=True)
+                if text:
+                    content.append(f"- {text}")
             continue
         else:
             text = element.get_text(" ", strip=True)

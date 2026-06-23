@@ -14,7 +14,6 @@ load_dotenv()
 
 class RAGPipeline:
     def __init__(self):
-        self.embedder = Embedder()
         self.store = ChromaStore()
 
         self.llm = ChatOpenAI(
@@ -38,4 +37,12 @@ class RAGPipeline:
         return retrieval_chain | self.prompt | self.llm | StrOutputParser()
 
     def query(self, question):
-        return self.chain.invoke(question)
+        docs = self.retriever.invoke(question)
+
+        answer = self.chain.invoke(question)
+
+        sources = list(dict.fromkeys(
+            doc.metadata["source"] for doc in docs if "source" in doc.metadata
+        ))
+
+        return answer, sources

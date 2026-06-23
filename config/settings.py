@@ -2,9 +2,7 @@ BASE_URL = "https://docs.langchain.com/sitemap.xml"
 
 ALLOWED_PATHS = [
     "/oss/python/langchain/",
-    "/oss/python/langgraph/",
-    "/oss/python/concepts/",
-    "/oss/python/integrations/",
+    "/oss/python/concepts/"
 ]
 
 OUTPUT_RAW_DIR = "data/raw"
