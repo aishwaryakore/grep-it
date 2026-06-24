@@ -14,8 +14,6 @@ load_dotenv()
 
 class RAGPipeline:
     def __init__(self):
-        self.store = ChromaStore()
-
         self.llm = ChatOpenAI(
             model="gpt-4o-mini",
             temperature=0
@@ -39,7 +37,11 @@ class RAGPipeline:
     def query(self, question):
         docs = self.retriever.invoke(question)
 
-        answer = self.chain.invoke(question)
+        context = self._format_context(docs)
+        answer = (self.prompt | self.llm | StrOutputParser()).invoke({
+            "context": context,
+            "question": question
+        })
 
         sources = list(dict.fromkeys(
             doc.metadata["source"] for doc in docs if "source" in doc.metadata

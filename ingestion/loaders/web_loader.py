@@ -2,10 +2,10 @@ import requests
 
 def load_page(url):
     try:
-        resonse = requests.get(url)
+        response = requests.get(url)
         return {
             "url" : url,
-            "html" : resonse.text
+            "html" : response.text
         }
     except Exception as e:
         print(f"Error loading {url}: {e}")
