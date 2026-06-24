@@ -1,5 +1,3 @@
-from vector_store.chroma_store import ChromaStore
-
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -47,4 +45,6 @@ class RAGPipeline:
             doc.metadata["source"] for doc in docs if "source" in doc.metadata
         ))
 
-        return answer, sources
+        contexts = [doc.page_content for doc in docs]
+
+        return answer, sources, contexts

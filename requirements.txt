@@ -14,3 +14,4 @@ lxml
 sentence-transformers
 rank-bm25
 cohere
+ragas

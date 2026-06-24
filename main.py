@@ -4,7 +4,7 @@ rag = RAGPipeline()
 
 query = input("Ask a question about LangChain: ")
 
-answer, sources = rag.query(query)
+answer, sources, _ = rag.query(query)
 
 print("\nAnswer:\n")
 print(answer)
