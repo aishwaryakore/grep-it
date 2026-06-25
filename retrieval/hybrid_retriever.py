@@ -2,13 +2,13 @@ import json
 
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
-# from langchain_classic.retrievers import EnsembleRetriever
-from langchain.retrievers import EnsembleRetriever
+from langchain_classic.retrievers import EnsembleRetriever
+# from langchain.retrievers import EnsembleRetriever
 
 from embeddings.embedder import Embedder
 from vector_store.chroma_store import ChromaStore
-# from langchain_classic.retrievers.contextual_compression import ContextualCompressionRetriever
-from langchain.retrievers import ContextualCompressionRetriever
+from langchain_classic.retrievers.contextual_compression import ContextualCompressionRetriever
+# from langchain.retrievers import ContextualCompressionRetriever
 from langchain_cohere import CohereRerank
 
 CHUNKS_PATH = "data/chunks/chunks.json"
