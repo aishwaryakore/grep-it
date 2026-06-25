@@ -5,6 +5,7 @@ from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 
 from retrieval.prompts import RAG_PROMPT
 from retrieval.hybrid_retriever import build_retriever
+from retrieval.query_rewriter import build_query_rewriter
 
 from dotenv import load_dotenv
 
@@ -19,21 +20,26 @@ class RAGPipeline:
 
         self.prompt = ChatPromptTemplate.from_template(RAG_PROMPT)
         self.retriever = build_retriever(k=8)
-        self.chain = self._build_chain()
+        self.query_rewriter = build_query_rewriter()
+        # self.chain = self._build_chain()
+
 
     def _format_context(self, docs):
         return "\n\n---\n\n".join(doc.page_content for doc in docs)
 
-    def _build_chain(self):
-        retrieval_chain = {
-            "context": self.retriever | RunnableLambda(self._format_context),
-            "question": RunnablePassthrough()
-        }
+    # def _build_chain(self):
+    #     retrieval_chain = {
+    #         "context": self.retriever | RunnableLambda(self._format_context),
+    #         "question": RunnablePassthrough()
+    #     }
 
-        return retrieval_chain | self.prompt | self.llm | StrOutputParser()
+    #     return retrieval_chain | self.prompt | self.llm | StrOutputParser()
 
     def query(self, question):
-        docs = self.retriever.invoke(question)
+        rewritten = self.query_rewriter.invoke({"question": question})
+        print(f"Rewritten query: {rewritten}")
+
+        docs = self.retriever.invoke(rewritten)
 
         context = self._format_context(docs)
         answer = (self.prompt | self.llm | StrOutputParser()).invoke({

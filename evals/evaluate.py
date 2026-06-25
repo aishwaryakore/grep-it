@@ -1,7 +1,5 @@
 import os
 import json
-import sys
-
 from datasets import Dataset
 from ragas import evaluate
 from ragas.metrics import (
@@ -10,7 +8,6 @@ from ragas.metrics import (
     ContextPrecision,
     ContextRecall
 )
-
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from retrieval.rag_pipeline import RAGPipeline
 

@@ -48,3 +48,18 @@ CODE:
 ---------------------
 ANSWER:
 """
+
+REWRITE_PROMPT = """
+You are an expert at rewriting user questions to improve \
+retrieval from LangChain's official documentation.
+
+Rewrite the question to use precise technical terminology that would appear \
+in LangChain docs. Make it specific and searchable.
+
+Only rewrite if the question is vague or conversational. If it is already \
+precise and technical, return it as-is.
+
+Original question: {question}
+
+Rewritten question (return only the rewritten question, nothing else):
+"""
