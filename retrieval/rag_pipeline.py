@@ -1,7 +1,9 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+# from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+from langchain_core.messages import HumanMessage, AIMessage
+
 
 from retrieval.prompts import RAG_PROMPT
 from retrieval.hybrid_retriever import build_retriever
@@ -22,6 +24,7 @@ class RAGPipeline:
         self.retriever = build_retriever(k=8)
         self.query_rewriter = build_query_rewriter()
         # self.chain = self._build_chain()
+        self.chat_history = []
 
 
     def _format_context(self, docs):
@@ -35,17 +38,33 @@ class RAGPipeline:
 
     #     return retrieval_chain | self.prompt | self.llm | StrOutputParser()
 
+    def _format_history(self):
+        lines = []
+        for msg in self.chat_history[-4:]:  # last 2 exchanges
+            if isinstance(msg, HumanMessage):
+                lines.append(f"User: {msg.content}")
+            elif isinstance(msg, AIMessage):
+                lines.append(f"Assistant: {msg.content}")
+        return "\n".join(lines)
+
     def query(self, question):
-        rewritten = self.query_rewriter.invoke({"question": question})
+
+        history = self._format_history()
+        full_question = f"{history}\nUser: {question}" if history else question
+
+        rewritten = self.query_rewriter.invoke({"question": full_question})
         print(f"Rewritten query: {rewritten}")
 
         docs = self.retriever.invoke(rewritten)
-
         context = self._format_context(docs)
+
         answer = (self.prompt | self.llm | StrOutputParser()).invoke({
             "context": context,
             "question": question
         })
+
+        self.chat_history.append(HumanMessage(content=question))
+        self.chat_history.append(AIMessage(content=answer))
 
         sources = list(dict.fromkeys(
             doc.metadata["source"] for doc in docs if "source" in doc.metadata
